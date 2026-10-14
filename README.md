@@ -21,6 +21,15 @@ dotnet run --project src/MySqlBackupUtility -c Release
 dotnet publish src/MySqlBackupUtility -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o publish
 ```
 
+## Установщик MSI (для ПК пользователя)
+```powershell
+powershell -ExecutionPolicy Bypass -File installer/build.ps1
+# → dist/MySqlBackupUtility-0.1.0-win-x64.msi
+```
+Ставит в `Program Files\MySqlBackupUtility` для всех пользователей + ярлыки
+(рабочий стол, меню «Пуск»). Требуется WiX v5 (`dotnet tool install --global wix --version 5.0.2`).
+Описание: `installer/Package.wxs`.
+
 ## Использование
 1. Вкладка «Подключения» → Новое → заполнить → «Проверить соединение».
    Нажмите **«Обновить список БД»** — сервер вернёт базы, отметьте галочками нужные

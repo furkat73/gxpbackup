@@ -1,0 +1,90 @@
+<!-- MSI-установщик MySQL Backup Utility (WiX v5, свободная лицензия MS-RL).
+     Сборка: installer/build.ps1 (требуется: dotnet SDK и WiX v5 tool).
+     Установка для всех пользователей: Program Files плюс ярлыки (Пуск, рабочий стол). -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="MySQL Backup Utility"
+           Language="1049"
+           Version="0.1.0"
+           Manufacturer="gxpbackup"
+           Scope="perMachine"
+           UpgradeCode="95B71294-4054-4E30-BF99-3151F30AA9EC">
+    <MajorUpgrade DowngradeErrorMessage="Установлена более новая версия MySQL Backup Utility." />
+    <Media Id="1" Cabinet="app.cab" EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="C:\gxpbackup\src\MySqlBackupUtility\app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <Feature Id="Main" Title="MySQL Backup Utility" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <ComponentGroup Id="AppFiles">
+      <ComponentRef Id="C_MainExe" />
+      <ComponentRef Id="C_Sqlite" />
+      <ComponentRef Id="C_D3D" />
+      <ComponentRef Id="C_PenImc" />
+      <ComponentRef Id="C_PresNative" />
+      <ComponentRef Id="C_VcRt" />
+      <ComponentRef Id="C_WpfGfx" />
+    </ComponentGroup>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="MySqlBackupUtility" />
+    </StandardDirectory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="C_MainExe" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\MySqlBackupUtility.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="C_Sqlite" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\e_sqlite3.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C_D3D" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\D3DCompiler_47_cor3.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C_PenImc" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\PenImc_cor3.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C_PresNative" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\PresentationNative_cor3.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C_VcRt" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\vcruntime140_cor3.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C_WpfGfx" Bitness="always64">
+        <File Source="C:\gxpbackup\dist\stage\wpfgfx_cor3.dll" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppMenuDir" Name="MySQL Backup Utility">
+        <Component Id="StartMenuShortcut" Directory="AppMenuDir" Bitness="always64">
+          <Shortcut Id="StartMenuExe"
+                    Name="MySQL Backup Utility"
+                    Target="[INSTALLFOLDER]MySqlBackupUtility.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon" />
+          <RemoveFolder Id="AppMenuDir" On="uninstall" />
+          <RegistryValue Root="HKLM"
+                         Key="Software\MySqlBackupUtility"
+                         Name="installed" Value="1" Type="integer" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Directory="DesktopFolder" Bitness="always64">
+        <Shortcut Id="DesktopExe"
+                  Name="MySQL Backup Utility"
+                  Target="[INSTALLFOLDER]MySqlBackupUtility.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        <RegistryValue Root="HKLM"
+                       Key="Software\MySqlBackupUtility"
+                       Name="desktopShortcut" Value="1" Type="integer" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Package>
+</Wix>
