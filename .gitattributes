@@ -1,0 +1,4 @@
+* text=auto
+*.ico binary
+*.exe binary
+*.dll binary

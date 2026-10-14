@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MySqlBackupUtility/MySqlBackupUtility.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmokeTest/SmokeTest.csproj" />
+  </Folder>
+</Solution>
