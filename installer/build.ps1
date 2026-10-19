@@ -25,6 +25,28 @@ dotnet publish (Join-Path $root 'src\MySqlBackupUtility') -c Release -r win-x64 
   --self-contained true /p:PublishSingleFile=true -o $stage
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
 
+# PublishSingleFile does NOT embed native libraries: WPF/SQLite DLLs are placed
+# next to the exe and are loaded from there. Without them the app dies with
+# DllNotFoundException while creating the main window, so verify they exist.
+$required = @(
+    'MySqlBackupUtility.exe',
+    'D3DCompiler_47_cor3.dll',
+    'e_sqlite3.dll',
+    'PenImc_cor3.dll',
+    'PresentationNative_cor3.dll',
+    'vcruntime140_cor3.dll',
+    'wpfgfx_cor3.dll'
+)
+$missing = @()
+foreach ($f in $required) {
+    if (-not (Test-Path (Join-Path $stage $f))) { $missing += $f }
+}
+if ($missing.Count -gt 0) {
+    throw ("Native libraries missing in publish output: " + ($missing -join ', ') +
+           ". The MSI would install an app that cannot start.")
+}
+Write-Host "Publish output OK: $($required.Count) files (exe + native libs)"
+
 # -arch x64 is required, otherwise the MSI is x86 and ProgramFiles64Folder
 # resolves to "Program Files (x86)".
 # wixnative.exe (cabinet compressor) intermittently crashes with 0xC0000005 on

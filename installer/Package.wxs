@@ -18,11 +18,14 @@
 
     <Feature Id="Main" Title="MySQL Backup Utility" Level="1">
       <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="C_NativeLibs" />
     </Feature>
 
-    <!-- Всё в single-file exe (self-contained, .NET 8): внешние DLL не нужны.
-         Ярлыки лежат в том же компоненте, что и файл (KeyPath = exe).
-         Так пакет остаётся целиком per-machine и проходит ICE38/43/57. -->
+    <!-- Всё в single-file exe (self-contained, .NET 8) + нативные библиотеки WPF.
+         PublishSingleFile НЕ вшивает native DLL (D3DCompiler_47_cor3, e_sqlite3,
+         PenImc_cor3, PresentationNative_cor3, vcruntime140_cor3, wpfgfx_cor3) —
+         они подгружаются из папки рядом с exe. Без них WPF падает при создании
+         окна с DllNotFoundException, поэтому ставим их обязательно. -->
     <ComponentGroup Id="AppFiles">
       <ComponentRef Id="C_MainExe" />
     </ComponentGroup>
@@ -53,6 +56,16 @@
         </File>
         <RemoveFolder Id="RemoveAppMenuDir" Directory="AppMenuDir" On="uninstall" />
         <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      </Component>
+
+      <!-- Нативные библиотеки, без которых WPF не создаёт окно. -->
+      <Component Id="C_NativeLibs" Guid="9D4B7E15-27C8-4A93-B5D6-1E4F8A03C7B6" Bitness="always64">
+        <File Id="NativeD3DCompiler" Source="C:\gxpbackup\dist\stage\D3DCompiler_47_cor3.dll" KeyPath="yes" />
+        <File Id="NativeSqlite" Source="C:\gxpbackup\dist\stage\e_sqlite3.dll" />
+        <File Id="NativePenImc" Source="C:\gxpbackup\dist\stage\PenImc_cor3.dll" />
+        <File Id="NativePresentation" Source="C:\gxpbackup\dist\stage\PresentationNative_cor3.dll" />
+        <File Id="NativeVcruntime" Source="C:\gxpbackup\dist\stage\vcruntime140_cor3.dll" />
+        <File Id="NativeWpfgfx" Source="C:\gxpbackup\dist\stage\wpfgfx_cor3.dll" />
       </Component>
     </DirectoryRef>
 

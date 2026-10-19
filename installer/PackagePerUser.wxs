@@ -23,6 +23,7 @@
 
     <Feature Id="Main" Title="MySQL Backup Utility" Level="1">
       <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="C_NativeLibs" />
     </Feature>
 
     <ComponentGroup Id="AppFiles">
@@ -62,6 +63,20 @@
                        Name="installed" Value="1" Type="integer" KeyPath="yes" />
         <RemoveFolder Id="RemoveAppMenuDir" Directory="AppMenuDir" On="uninstall" />
         <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      </Component>
+
+      <!-- Нативные библиотеки WPF: PublishSingleFile их НЕ вшивает, они лежат
+           рядом с exe. Без них приложение падает при создании окна. -->
+      <Component Id="C_NativeLibs" Guid="3E5A9C71-48D2-4B60-9F13-6C2D5B8E4A19">
+        <File Id="NativeD3DCompiler" Source="C:\gxpbackup\dist\stage\D3DCompiler_47_cor3.dll" KeyPath="no" />
+        <File Id="NativeSqlite" Source="C:\gxpbackup\dist\stage\e_sqlite3.dll" />
+        <File Id="NativePenImc" Source="C:\gxpbackup\dist\stage\PenImc_cor3.dll" />
+        <File Id="NativePresentation" Source="C:\gxpbackup\dist\stage\PresentationNative_cor3.dll" />
+        <File Id="NativeVcruntime" Source="C:\gxpbackup\dist\stage\vcruntime140_cor3.dll" />
+        <File Id="NativeWpfgfx" Source="C:\gxpbackup\dist\stage\wpfgfx_cor3.dll" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\MySqlBackupUtility\NativeLibs"
+                       Name="present" Value="1" Type="integer" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

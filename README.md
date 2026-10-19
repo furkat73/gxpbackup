@@ -20,6 +20,12 @@ dotnet run --project src/MySqlBackupUtility -c Release
 ```powershell
 dotnet publish src/MySqlBackupUtility -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o publish
 ```
+> **Важно:** `PublishSingleFile` вшивает только управляемые сборки. Нативные библиотеки
+> (`D3DCompiler_47_cor3.dll`, `e_sqlite3.dll`, `PenImc_cor3.dll`, `PresentationNative_cor3.dll`,
+> `vcruntime140_cor3.dll`, `wpfgfx_cor3.dll`) остаются **рядом с exe** и подгружаются оттуда.
+> Если их не положить рядом — приложение падает при создании окна с
+> `System.DllNotFoundException` (в журнале событий: «.NET Runtime», id=1026).
+> Поэтому в MSI ставятся exe **и** эти DLL.
 
 ## Установщик MSI (для ПК пользователя)
 ```powershell
