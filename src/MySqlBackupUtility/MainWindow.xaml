@@ -226,7 +226,13 @@
                             </StackPanel>
                         </Grid>
                         <CheckBox x:Name="CfgTray" Content="Сворачивать в трей при закрытии окна" IsChecked="True" Margin="0,12,0,0"/>
-                        <TextBlock Text="Планировщик: встроенный (работает пока программа запущена, в т.ч. в трее). Для запуска без входа пользователя используйте Windows Task Scheduler (см. README)." TextWrapping="Wrap" Margin="0,12,0,0" Foreground="Gray"/>
+                        <TextBlock Text="Автозапуск после перезагрузки/включения сервера:" FontWeight="Bold" Margin="0,14,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <Button x:Name="BtnAutoStartOn" Content="Включить автозапуск" Click="BtnAutoStartOn_Click" Margin="0,0,8,0" Padding="10,5"/>
+                            <Button x:Name="BtnAutoStartOff" Content="Выключить автозапуск" Click="BtnAutoStartOff_Click" Padding="10,5"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AutoStartStatus" TextWrapping="Wrap" Margin="0,4,0,0" Foreground="Gray"/>
+                        <TextBlock Text="Планировщик: встроенный (работает пока программа запущена, в т.ч. в трее). Автозапуск добавляет программу в автозагрузку Windows (HKCU Run) — после входа в систему программа сама стартует и продолжает выполнение задач по расписанию." TextWrapping="Wrap" Margin="0,8,0,0" Foreground="Gray"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

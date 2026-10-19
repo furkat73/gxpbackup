@@ -51,6 +51,7 @@ public partial class MainWindow : Window
         CfgDumpPath.Text = ToolLocator.TryResolveDump() ?? "";
         CfgMysqlPath.Text = ToolLocator.TryResolveMysql() ?? "";
         RefreshToolsStatus();
+        RefreshAutoStartStatus();
         RefreshConnections();
         RefreshJobs();
         RefreshArchives();
@@ -599,5 +600,67 @@ public partial class MainWindow : Window
         sp.Children.Add(btns);
         w.Content = sp;
         return w.ShowDialog() == true ? result : null;
+    }
+
+    // ---------- автозапуск (HKCU Run) ----------
+    private const string AutoStartRunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    private const string AutoStartValueName = "MySqlBackupUtility";
+
+    private static string? GetAutoStartPath()
+    {
+        try
+        {
+            using var k = Registry.CurrentUser.OpenSubKey(AutoStartRunKey, false);
+            return k?.GetValue(AutoStartValueName) as string;
+        }
+        catch { return null; }
+    }
+
+    private void RefreshAutoStartStatus()
+    {
+        if (AutoStartStatus == null) return;
+        var path = GetAutoStartPath();
+        AutoStartStatus.Text = path == null
+            ? "Статус: автозапуск выключен."
+            : $"Статус: автозапуск включен ({path})";
+    }
+
+    private void BtnAutoStartOn_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var exePath = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(exePath))
+            {
+                WpfMessageBox.Show("Не удалось определить путь к программе.");
+                return;
+            }
+            Registry.SetValue(Registry.CurrentUser.Name + "\\" + AutoStartRunKey, AutoStartValueName, exePath);
+            RefreshAutoStartStatus();
+            _db.AddLog("INFO", "Автозапуск включен: " + exePath);
+            RefreshLogs();
+            WpfMessageBox.Show("Автозапуск включен.\nПрограмма будет автоматически запускаться при входе в систему после перезагрузки/включения сервера.");
+        }
+        catch (Exception ex)
+        {
+            WpfMessageBox.Show("Не удалось включить автозапуск: " + ex.Message);
+        }
+    }
+
+    private void BtnAutoStartOff_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            using var k = Registry.CurrentUser.OpenSubKey(AutoStartRunKey, true);
+            k?.DeleteValue(AutoStartValueName, false);
+            RefreshAutoStartStatus();
+            _db.AddLog("INFO", "Автозапуск выключен");
+            RefreshLogs();
+            WpfMessageBox.Show("Автозапуск выключен.");
+        }
+        catch (Exception ex)
+        {
+            WpfMessageBox.Show("Не удалось отключить автозапуск: " + ex.Message);
+        }
     }
 }
