@@ -20,14 +20,9 @@
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
+    <!-- Всё в single-file exe (self-contained, .NET 8): внешние DLL не нужны. -->
     <ComponentGroup Id="AppFiles">
       <ComponentRef Id="C_MainExe" />
-      <ComponentRef Id="C_Sqlite" />
-      <ComponentRef Id="C_D3D" />
-      <ComponentRef Id="C_PenImc" />
-      <ComponentRef Id="C_PresNative" />
-      <ComponentRef Id="C_VcRt" />
-      <ComponentRef Id="C_WpfGfx" />
     </ComponentGroup>
 
     <StandardDirectory Id="ProgramFiles64Folder">
@@ -37,24 +32,6 @@
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="C_MainExe" Bitness="always64">
         <File Source="C:\gxpbackup\dist\stage\MySqlBackupUtility.exe" KeyPath="yes" />
-      </Component>
-      <Component Id="C_Sqlite" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\e_sqlite3.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="C_D3D" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\D3DCompiler_47_cor3.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="C_PenImc" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\PenImc_cor3.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="C_PresNative" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\PresentationNative_cor3.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="C_VcRt" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\vcruntime140_cor3.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="C_WpfGfx" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\wpfgfx_cor3.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

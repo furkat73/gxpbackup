@@ -7,7 +7,9 @@ $stage = Join-Path $root 'dist\stage'
 $msi = Join-Path $root 'dist\MySqlBackupUtility-0.1.0-win-x64.msi'
 
 dotnet publish (Join-Path $root 'src\MySqlBackupUtility') -c Release -r win-x64 `
-  --self-contained true /p:PublishSingleFile=true -o $stage
+  --self-contained true /p:PublishSingleFile=true /p:DeleteExistingFiles=true -o $stage
 
-wix build (Join-Path $PSScriptRoot 'Package.wxs') -o $msi
+# -arch x64: обязательно, иначе MSI собирается как x86 и ProgramFiles64Folder
+# разрешается в "Program Files (x86)" (файлы ложатся не туда).
+wix build -arch x64 (Join-Path $PSScriptRoot 'Package.wxs') -o $msi
 Write-Host "MSI: $msi"
