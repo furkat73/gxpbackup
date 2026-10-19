@@ -24,11 +24,21 @@ dotnet publish src/MySqlBackupUtility -c Release -r win-x64 --self-contained tru
 ## Установщик MSI (для ПК пользователя)
 ```powershell
 powershell -ExecutionPolicy Bypass -File installer/build.ps1
-# → dist/MySqlBackupUtility-0.1.0-win-x64.msi
+# → dist/MySqlBackupUtility-0.1.0-win-x64.msi          (для всех пользователей)
+# → dist/MySqlBackupUtility-0.1.0-win-x64-peruser.msi  (без прав администратора)
 ```
-Ставит в `Program Files\MySqlBackupUtility` для всех пользователей + ярлыки
-(рабочий стол, меню «Пуск»). Требуется WiX v5 (`dotnet tool install --global wix --version 5.0.2`).
-Описание: `installer/Package.wxs`.
+Готовые пакеты (собираются в `installer/build.ps1`, WiX v5 —
+`dotnet tool install --global wix --version 5.0.2`):
+
+| Файл | Куда ставится | Права |
+|------|---------------|-------|
+| `...win-x64.msi` | `C:\Program Files\MySqlBackupUtility`, ярлыки у всех пользователей | **нужен администратор** (подтвердить UAC); при отказе — ошибка 1925 |
+| `...win-x64-peruser.msi` | `%LOCALAPPDATA%\Programs\MySqlBackupUtility`, ярлыки текущего пользователя | права администратора **не нужны** |
+
+**Если установка «не работает»:** запустите `.msi` правым кликом →
+«Запуск от имени администратора» и подтвердите запрос UAC. Если у учётной записи нет прав
+администратора — используйте вариант `-peruser.msi` (двойной клик, без UAC).
+Описание пакетов: `installer/Package.wxs`, `installer/PackagePerUser.wxs`.
 
 ## Использование
 1. Вкладка «Подключения» → Новое → заполнить → «Проверить соединение».
@@ -69,6 +79,6 @@ src/MySqlBackupUtility/
 ```
 
 ## Ограничения MVP
-- Нет E-mail/Telegram-уведомлений (п.2.5 опционально), нет инсталлятора MSI.
+- Нет E-mail/Telegram-уведомлений (п.2.5 опционально).
 - Восстановление из `*` (все БД) требует выбора целевой БД вручную.
 - Для БД 5+ ГБ проверьте свободное место и таймауты; прогресс — текстовый (стриминг, без OOM).

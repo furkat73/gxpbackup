@@ -1,6 +1,8 @@
 <!-- MSI-установщик MySQL Backup Utility (WiX v5, свободная лицензия MS-RL).
-     Сборка: installer/build.ps1 (требуется: dotnet SDK и WiX v5 tool).
-     Установка для всех пользователей: Program Files плюс ярлыки (Пуск, рабочий стол). -->
+     Вариант 1: установка для всех пользователей в Program Files.
+     ТРЕБУЕТ ПРАВ АДМИНИСТРАТОРА (подтвердить запрос UAC).
+     Для установки без прав администратора используйте ...-peruser.msi.
+     Сборка: installer/build.ps1 (требуется: dotnet SDK и WiX v5 tool). -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="MySQL Backup Utility"
            Language="1049"
@@ -16,11 +18,11 @@
 
     <Feature Id="Main" Title="MySQL Backup Utility" Level="1">
       <ComponentGroupRef Id="AppFiles" />
-      <ComponentRef Id="StartMenuShortcut" />
-      <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
-    <!-- Всё в single-file exe (self-contained, .NET 8): внешние DLL не нужны. -->
+    <!-- Всё в single-file exe (self-contained, .NET 8): внешние DLL не нужны.
+         Ярлыки лежат в том же компоненте, что и файл (KeyPath = exe).
+         Так пакет остаётся целиком per-machine и проходит ICE38/43/57. -->
     <ComponentGroup Id="AppFiles">
       <ComponentRef Id="C_MainExe" />
     </ComponentGroup>
@@ -29,39 +31,29 @@
       <Directory Id="INSTALLFOLDER" Name="MySqlBackupUtility" />
     </StandardDirectory>
 
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppMenuDir" Name="MySQL Backup Utility" />
+    </StandardDirectory>
+
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="C_MainExe" Bitness="always64">
-        <File Source="C:\gxpbackup\dist\stage\MySqlBackupUtility.exe" KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-
-    <StandardDirectory Id="ProgramMenuFolder">
-      <Directory Id="AppMenuDir" Name="MySQL Backup Utility">
-        <Component Id="StartMenuShortcut" Directory="AppMenuDir" Bitness="always64">
+        <File Id="MainExe" Source="C:\gxpbackup\dist\stage\MySqlBackupUtility.exe" KeyPath="yes">
           <Shortcut Id="StartMenuExe"
+                    Directory="AppMenuDir"
                     Name="MySQL Backup Utility"
-                    Target="[INSTALLFOLDER]MySqlBackupUtility.exe"
+                    Description="Резервное копирование MySQL"
                     WorkingDirectory="INSTALLFOLDER"
                     Icon="AppIcon" />
-          <RemoveFolder Id="AppMenuDir" On="uninstall" />
-          <RegistryValue Root="HKLM"
-                         Key="Software\MySqlBackupUtility"
-                         Name="installed" Value="1" Type="integer" KeyPath="yes" />
-        </Component>
-      </Directory>
-    </StandardDirectory>
-
-    <StandardDirectory Id="DesktopFolder">
-      <Component Id="DesktopShortcut" Directory="DesktopFolder" Bitness="always64">
-        <Shortcut Id="DesktopExe"
-                  Name="MySQL Backup Utility"
-                  Target="[INSTALLFOLDER]MySqlBackupUtility.exe"
-                  WorkingDirectory="INSTALLFOLDER"
-                  Icon="AppIcon" />
-        <RegistryValue Root="HKLM"
-                       Key="Software\MySqlBackupUtility"
-                       Name="desktopShortcut" Value="1" Type="integer" KeyPath="yes" />
+          <Shortcut Id="DesktopExe"
+                    Directory="DesktopFolder"
+                    Name="MySQL Backup Utility"
+                    Description="Резервное копирование MySQL"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon" />
+        </File>
+        <RemoveFolder Id="RemoveAppMenuDir" Directory="AppMenuDir" On="uninstall" />
+        <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
       </Component>
-    </StandardDirectory>
+    </DirectoryRef>
   </Package>
 </Wix>

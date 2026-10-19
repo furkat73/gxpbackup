@@ -1,0 +1,68 @@
+<!-- MSI-установщик MySQL Backup Utility — вариант 2: установка ТОЛЬКО ДЛЯ ТЕКУЩЕГО
+     ПОЛЬЗОВАТЕЛЯ, без прав администратора (UAC не запрашивается).
+     Ставится в %LOCALAPPDATA%\Programs\MySqlBackupUtility, ярлыки — в личные
+     папки «Рабочий стол» и «Пуск» текущего пользователя.
+     Сборка: installer/build.ps1 -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="MySQL Backup Utility"
+           Language="1049"
+           Version="0.1.0"
+           Manufacturer="gxpbackup"
+           Scope="perUser"
+           UpgradeCode="C4E1A7D2-9B63-4F18-8A55-2D7E6B0C91AF">
+    <MajorUpgrade DowngradeErrorMessage="Установлена более новая версия MySQL Backup Utility." />
+    <Media Id="1" Cabinet="app.cab" EmbedCab="yes" />
+
+    <!-- Явно per-user: даже если msiexec запущен администратором (autoElevate),
+         MSIINSTALLPERUSER=1 запрещает уходить в per-machine контекст. -->
+    <Property Id="ALLUSERS" Value="2" />
+    <Property Id="MSIINSTALLPERUSER" Value="1" />
+
+    <Icon Id="AppIcon" SourceFile="C:\gxpbackup\src\MySqlBackupUtility\app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <Feature Id="Main" Title="MySQL Backup Utility" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+
+    <ComponentGroup Id="AppFiles">
+      <ComponentRef Id="C_MainExe" />
+    </ComponentGroup>
+
+    <!-- LocalAppDataFolder — запись без прав администратора. -->
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ProgramsDir" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="MySqlBackupUtility" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppMenuDir" Name="MySQL Backup Utility" />
+    </StandardDirectory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <!-- Per-user: KeyPath — ключ HKCU (требование ICE38 для профиля пользователя). -->
+      <Component Id="C_MainExe" Guid="B7F1C2A4-5E38-4D96-9C21-8A4E6D3B7F02">
+        <File Id="MainExe" Source="C:\gxpbackup\dist\stage\MySqlBackupUtility.exe" KeyPath="no">
+          <Shortcut Id="StartMenuExe"
+                    Directory="AppMenuDir"
+                    Name="MySQL Backup Utility"
+                    Description="Резервное копирование MySQL"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon" />
+          <Shortcut Id="DesktopExe"
+                    Directory="DesktopFolder"
+                    Name="MySQL Backup Utility"
+                    Description="Резервное копирование MySQL"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon" />
+        </File>
+        <RegistryValue Root="HKCU"
+                       Key="Software\MySqlBackupUtility"
+                       Name="installed" Value="1" Type="integer" KeyPath="yes" />
+        <RemoveFolder Id="RemoveAppMenuDir" Directory="AppMenuDir" On="uninstall" />
+        <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      </Component>
+    </DirectoryRef>
+  </Package>
+</Wix>
