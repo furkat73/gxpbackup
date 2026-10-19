@@ -64,5 +64,12 @@
         <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
       </Component>
     </DirectoryRef>
+
+    <!-- Запуск программы сразу после установки. Условие UILevel>=3 => при тихой
+         установке (/qn, UILevel=2) программа не запускается. -->
+    <CustomAction Id="LaunchApp" FileRef="MainExe" ExeCommand="" Execute="immediate" Return="asyncNoWait" />
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApp" After="InstallFinalize" Condition="NOT REMOVE AND UILevel &gt;= 3" />
+    </InstallExecuteSequence>
   </Package>
 </Wix>

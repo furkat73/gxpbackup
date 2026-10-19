@@ -27,14 +27,22 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
 
 # -arch x64 is required, otherwise the MSI is x86 and ProgramFiles64Folder
 # resolves to "Program Files (x86)".
-# -dcl low -ct 1: low cabinet compression and a single compressor thread.
-# The default (high, multi-threaded) makes wixnative.exe crash with 0xC0000005
-# on this 154 MB single-file exe.
-& $wix build -arch x64 -dcl low -ct 1 (Join-Path $PSScriptRoot 'Package.wxs') -o $msi
-if ($LASTEXITCODE -ne 0) { throw "wix build (perMachine) failed: $LASTEXITCODE" }
+# wixnative.exe (cabinet compressor) intermittently crashes with 0xC0000005 on
+# this large single-file exe, so retry a few times with decreasing compression.
+function Build-Msi($wxs, $out) {
+    foreach ($lvl in @('low', 'mszip', 'none')) {
+        for ($i = 1; $i -le 3; $i++) {
+            & $wix build -arch x64 -dcl $lvl -ct 1 $wxs -o $out
+            if ($LASTEXITCODE -eq 0) { return }
+            Write-Host "wix build failed (level=$lvl, attempt=$i): $LASTEXITCODE"
+            Start-Sleep -Seconds 2
+        }
+    }
+    throw "wix build failed for $wxs"
+}
 
-& $wix build -arch x64 -dcl low -ct 1 (Join-Path $PSScriptRoot 'PackagePerUser.wxs') -o $msiUser
-if ($LASTEXITCODE -ne 0) { throw "wix build (perUser) failed: $LASTEXITCODE" }
+Build-Msi (Join-Path $PSScriptRoot 'Package.wxs') $msi
+Build-Msi (Join-Path $PSScriptRoot 'PackagePerUser.wxs') $msiUser
 
 Write-Host ""
 Write-Host "Done:"

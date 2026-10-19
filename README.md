@@ -38,6 +38,15 @@ powershell -ExecutionPolicy Bypass -File installer/build.ps1
 **Если установка «не работает»:** запустите `.msi` правым кликом →
 «Запуск от имени администратора» и подтвердите запрос UAC. Если у учётной записи нет прав
 администратора — используйте вариант `-peruser.msi` (двойной клик, без UAC).
+После установки программа запускается автоматически; при ошибке запуска показывается окно
+с текстом и пишется лог `%AppData%\MySqlBackupUtility\logs\crash-*.log`.
+
+Если MSI поставить нельзя (нет прав, блокирует антивирус) — есть портативный вариант:
+```powershell
+dotnet publish src/MySqlBackupUtility -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false -o dist/portable
+Compress-Archive -Path dist/portable/* -DestinationPath dist/MySqlBackupUtility-0.1.0-win-x64-portable.zip -Force
+# распаковать и запустить MySqlBackupUtility.exe (установка не нужна)
+```
 Описание пакетов: `installer/Package.wxs`, `installer/PackagePerUser.wxs`.
 
 ## Использование

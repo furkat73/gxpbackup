@@ -4,6 +4,8 @@ publish/
 publish-*/
 dist/stage/
 dist/*.msi
+dist/*.zip
+dist/portable/
 dist/*.log
 dist/*.wixpdb
 installer/bin/
